@@ -28,3 +28,52 @@ class Soldproduct(models.Model):
     delivery_type = models.CharField(max_length=128, blank=True)
     user_id = models.ForeignKey(Uerdet, on_delete=models.CASCADE, blank=True)
     odered_date = models.DateField(default=timezone.now, blank=True)
+
+
+class Reviews(models.Model):
+    review = models.CharField(max_length=10000, blank=True)
+    review_reply = models.CharField(max_length=10000, blank=True)
+    ratings = models.IntegerField(blank=True)
+    user_id = models.ForeignKey(Uerdet, on_delete=models.CASCADE, blank=True)
+    added_date = models.DateField(default=timezone.now, blank=True)
+    product_id = models.ForeignKey(
+        'Product', on_delete=models.CASCADE, blank=True)
+
+
+class Cart(models.Model):
+    quantity = models.CharField(max_length=128, blank=True)
+    status = models.CharField(max_length=128)
+    user_id = models.ForeignKey(Uerdet, on_delete=models.CASCADE, blank=True)
+    added_date = models.DateField(default=timezone.now, blank=True)
+    size = models.CharField(max_length=128, blank=True)
+    product_id = models.ForeignKey(
+        'Product', on_delete=models.CASCADE, blank=True)
+    solid = models.ForeignKey(
+        'Soldproduct', on_delete=models.CASCADE, blank=True, null=True)
+
+
+class Homeedit(models.Model):
+    mainheader = models.CharField(max_length=10000, blank=True)
+    maintext = models.CharField(max_length=10000, blank=True)
+    bottomtext = models.CharField(max_length=10000, blank=True)
+    picture = models.CharField(max_length=10000, blank=True)
+    trend = JSONField(blank=True, default=dict)
+    seller = JSONField(blank=True, default=dict)
+    feature = JSONField(blank=True, default=dict)
+
+
+class Wishlist(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
+    added_date = models.DateField(default=timezone.now, blank=True)
+    product_id = models.ForeignKey(
+        'Product', on_delete=models.CASCADE, blank=True)
+
+
+class Brand(models.Model):
+    brandname = models.CharField(max_length=10000, blank=True)
+    category = models.CharField(max_length=10000, blank=True)
+
+
+class Location(models.Model):
+    locationname = models.CharField(max_length=10000, blank=True)
+    price = models.CharField(max_length=10000, blank=True)
