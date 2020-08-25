@@ -139,3 +139,390 @@ def addproduct(request):
         else:
 
             return Response({'status': 'error'})
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny, ])
+def getproduct(request):
+    all_prod = Product.objects.all()
+    result = Productserial(all_prod, many=True)
+    return Response({'data': result.data})
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny, ])
+def getfiltproduct(request):
+    status = request.META['HTTP_STATUS']
+    discount = request.META['HTTP_DISCOUNT']
+    price = request.META['HTTP_PRICE']
+    category = request.META['HTTP_CATEGORY']
+    search = request.META['HTTP_SEARCH']
+    # print(status,discount,price,category)
+    # all_prod=Product.objects.filter(price__range=(1000,2000))
+
+    all_prod = None
+    if price != 'Default' and category != 'Default' and status != 'Default' and discount != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            if discount == "discount":
+                all_prod = Product.objects.filter(
+                    price__gte=newpt, category=category, status=status, discount__gte=1)
+            else:
+                all_prod = Product.objects.filter(
+                    price__gte=newpt, category=category, status=status, discount=0)
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            if discount == "discount":
+                all_prod = Product.objects.filter(
+                    price__lte=newpt, category=category, status=status, discount__gte=1)
+            else:
+                all_prod = Product.objects.filter(
+                    price__lte=newpt, category=category, status=status, discount=0)
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            if discount == "discount":
+                all_prod = Product.objects.filter(price__range=(
+                    small, big), category=category, status=status, discount__gte=1)
+            else:
+                all_prod = Product.objects.filter(price__range=(
+                    small, big), category=category, status=status, discount=0)
+    elif price != 'Default' and category != 'Default' and status != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+
+            all_prod = Product.objects.filter(
+                price__gte=newpt, category=category, status=status)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, category=category, status=status)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), category=category, status=status)
+
+    elif price != 'Default' and category != 'Default' and discount != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            if discount == "discount":
+                all_prod = Product.objects.filter(
+                    price__gte=newpt, category=category, discount__gte=1)
+            else:
+                all_prod = Product.objects.filter(
+                    price__gte=newpt, category=category, discount=0)
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            if discount == "discount":
+                all_prod = Product.objects.filter(
+                    price__lte=newpt, category=category, discount__gte=1)
+            else:
+                all_prod = Product.objects.filter(
+                    price__lte=newpt, category=category, discount=0)
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            if discount == "discount":
+                all_prod = Product.objects.filter(price__range=(
+                    small, big), category=category, discount__gte=1)
+            else:
+                all_prod = Product.objects.filter(price__range=(
+                    small, big), category=category, discount=0)
+    elif price != 'Default' and status != 'Default' and discount != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            if discount == "discount":
+                all_prod = Product.objects.filter(
+                    price__gte=newpt, status=status, discount__gte=1)
+            else:
+                all_prod = Product.objects.filter(
+                    price__gte=newpt, status=status, discount=0)
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            if discount == "discount":
+                all_prod = Product.objects.filter(
+                    price__lte=newpt, status=status, discount__gte=1)
+            else:
+                all_prod = Product.objects.filter(
+                    price__lte=newpt, status=status, discount=0)
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            if discount == "discount":
+                all_prod = Product.objects.filter(price__range=(
+                    small, big), status=status, discount__gte=1)
+            else:
+                all_prod = Product.objects.filter(
+                    price__range=(small, big), status=status, discount=0)
+    elif category != 'Default' and status != 'Default' and discount != 'Default':
+        if discount == "discount":
+            all_prod = Product.objects.filter(
+                category=category, status=status, discount__gte=1)
+        else:
+            all_prod = Product.objects.filter(
+                category=category, status=status, discount=0)
+    elif price != 'Default' and category != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+
+            all_prod = Product.objects.filter(
+                price__gte=newpt, category=category)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, category=category)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(
+                price__range=(small, big), category=category)
+    elif price != 'Default' and status != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+
+            all_prod = Product.objects.filter(price__gte=newpt, status=status)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(price__lte=newpt, status=status)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(
+                price__range=(small, big), status=status)
+    elif price != 'Default' and discount != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            if discount == "discount":
+                all_prod = Product.objects.filter(
+                    price__gte=newpt, discount__gte=1)
+            else:
+                all_prod = Product.objects.filter(price__gte=newpt, discount=0)
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            if discount == "discount":
+                all_prod = Product.objects.filter(
+                    price__lte=newpt, discount__gte=1)
+            else:
+                all_prod = Product.objects.filter(price__lte=newpt, discount=0)
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            if discount == "discount":
+                all_prod = Product.objects.filter(
+                    price__range=(small, big), discount__gte=1)
+            else:
+                all_prod = Product.objects.filter(
+                    price__range=(small, big), discount=0)
+    elif status != 'Default' and discount != 'Default':
+        if discount == "discount":
+            all_prod = Product.objects.filter(status=status, discount__gte=1)
+        else:
+            all_prod = Product.objects.filter(status=status, discount=0)
+    elif category != 'Default' and discount != 'Default':
+        if discount == "discount":
+            all_prod = Product.objects.filter(
+                category=category, discount__gte=1)
+        else:
+            all_prod = Product.objects.filter(category=category, discount=0)
+    elif category != 'Default' and status != 'Default':
+        all_prod = Product.objects.filter(category=category, status=status)
+    elif category != 'Default':
+        all_prod = Product.objects.filter(category=category)
+    elif status != 'Default':
+        all_prod = Product.objects.filter(status=status)
+    elif discount != 'Default':
+        if discount == "discount":
+            all_prod = Product.objects.filter(discount__gte=1)
+        else:
+            all_prod = Product.objects.filter(discount=0)
+    elif price != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+
+            all_prod = Product.objects.filter(price__gte=newpt)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(price__lte=newpt)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(small, big))
+    else:
+        all_prod = Product.objects.all()
+
+    result = Productserial(all_prod, many=True)
+    return Response({'status': 'done', 'data': result.data})
+
+
+@api_view(['POST', 'GET', "PUT", "DELETE"])
+def wishreq(request):
+    if request.method == "POST":
+        user = request.user.id
+        data = {
+            'user_id': user,
+            'product_id': request.data['productid']
+        }
+        check = None
+        try:
+            check = Wishlist.objects.get(
+                user_id=user, product_id=request.data['productid'])
+        except:
+            pass
+        print(check)
+        if check == None:
+            seril = Wishseril(data=data)
+            if seril.is_valid():
+                seril.save()
+                return Response({'status': 'sucess'})
+            else:
+                print(seril.errors)
+                return Response({'status': 'failed'})
+        else:
+            return Response({'status': 'already added'})
+    elif request.method == "GET":
+        user = request.user.id
+        dat = Wishlist.objects.filter(user_id=user).all()
+        seril = Getwishseril(dat, many=True)
+        return Response({'data': seril.data})
+    elif request.method == "DELETE":
+        print(request.META['HTTP_ID'])
+        check = Wishlist.objects.get(id=request.META['HTTP_ID'])
+
+        check.delete()
+        return Response({'status': 'success'})
+
+
+@api_view(['POST', 'GET', "PUT", "DELETE"])
+@permission_classes([permissions.AllowAny, ])
+def brandat(request):
+    if request.method == "POST":
+        user = request.user
+        if user.is_superuser:
+            seril = Brandseril(data=request.data)
+            if seril.is_valid():
+                seril.save()
+                return Response({'status': 'sucess'})
+            else:
+                print(seril.errors)
+                return Response({'staus': 'fail'})
+        else:
+
+            return Response({'status': 'error'})
+    elif request.method == "GET":
+        status = request.META['HTTP_STATUS']
+        print(status)
+        if status != 'Default':
+            dat = Brand.objects.filter(category=status)
+            print(dat)
+            seril = Brandseril(dat, many=True)
+            return Response({'data': seril.data})
+        else:
+            dat = Brand.objects.all()
+            seril = Brandseril(dat, many=True)
+            return Response({'data': seril.data})
+    elif request.method == "DELETE":
+        user = request.user
+        if user.is_superuser:
+            check = Brand.objects.get(id=request.META['HTTP_ID'])
+            print(request.META['HTTP_ID'])
+            check.delete()
+            return Response({'status': 'success'})
+        else:
+
+            return Response({'status': 'error'})
+
+
+@api_view(['POST', 'GET', "PUT", "DELETE"])
+@permission_classes([permissions.AllowAny, ])
+def locdat(request):
+    if request.method == "POST":
+        user = request.user
+        if user.is_superuser:
+            seril = Locationseril(data=request.data)
+            if seril.is_valid():
+                seril.save()
+                return Response({'status': 'sucess'})
+            else:
+                print(seril.errors)
+                return Response({'staus': 'fail'})
+        else:
+
+            return Response({'status': 'error'})
+    elif request.method == "GET":
+        status = request.META['HTTP_STATUS']
+        print(status)
+        if status != 'Default':
+            dat = Location.objects.filter(locationname=status)
+            print(dat)
+            seril = Locationseril(dat, many=True)
+            return Response({'data': seril.data})
+        else:
+            dat = Location.objects.all()
+            seril = Locationseril(dat, many=True)
+            return Response({'data': seril.data})
+    elif request.method == "DELETE":
+        user = request.user
+        if user.is_superuser:
+            check = Location.objects.get(id=request.META['HTTP_ID'])
+            print(request.META['HTTP_ID'])
+            check.delete()
+            return Response({'status': 'success'})
+        else:
+            return Response({'status': 'failed'})

@@ -129,3 +129,39 @@ def adminemail():
         user_email = user.email
         email_sender(user_email, header, disc)
         print(user_email)
+
+
+def delv_prod(userid):
+    seril = Cart.objects.filter(user_id=userid, status='Delivery').all()
+    for i in range(len(seril)):
+        data = {
+            'status': 'Sold'
+        }
+
+        res = Cartseril(seril[i], data=data)
+        if res.is_valid():
+            res.save()
+        else:
+            print(res.errors)
+
+
+def ratavg(obj):
+    tot = 0
+    cnt = 0
+    newavg = 0
+    try:
+        for i in range(len(obj)):
+
+            tot += obj[i].ratings
+            cnt += 1
+        newavg = round(tot/cnt)
+    except:
+        pass
+    return newavg
+    print(newavg)
+
+
+def email_sender(newemail, header, dis):
+    send_mail(header, f'''{dis}
+        
+        ''', 'magaranub@gmail.com', [newemail])
