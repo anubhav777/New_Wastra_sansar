@@ -526,3 +526,399 @@ def locdat(request):
             return Response({'status': 'success'})
         else:
             return Response({'status': 'failed'})
+
+
+@api_view(['POST', 'GET', "PUT"])
+@permission_classes([permissions.AllowAny, ])
+def homeset(request):
+
+    if request.method == "POST":
+        user = request.user
+        if user.is_superuser:
+            print(request.data)
+            seril = Homeseril(data=request.data)
+            if seril.is_valid():
+                seril.save()
+                return Response({'status': 'sucess'})
+            else:
+                print(seril.errors)
+                return Response({'staus': 'fail'})
+
+        else:
+
+            return Response({'status': 'error'})
+    elif request.method == "GET":
+        print(bd)
+        dat = Homeedit.objects.all()
+        seril = Homeseril(dat, many=True)
+        return Response({'data': seril.data})
+    elif request.method == "PUT":
+        user = request.user
+        if user.is_superuser:
+            data = None
+            if request.content_type == 'application/json':
+                data = {
+                    "mainheader": request.data['mainheader'],
+                    "maintext": request.data['maintext'],
+                    "bottomtext": request.data['bottomtext'],
+                    "picture": request.data['picture'],
+                }
+            else:
+                fl = request.FILES["file"]
+                filename = fl.name
+                fs = FileSystemStorage(location=cd)
+                fs.save(fl.name, fl)
+                data = {
+                    "mainheader": request.data['mainheader'],
+                    "maintext": request.data['maintext'],
+                    "bottomtext": request.data['bottomtext'],
+                    "picture": filename,
+                }
+            check = Homeedit.objects.get(id=1)
+            seril = Homeseril(check, data)
+            if seril.is_valid():
+                seril.save()
+                return Response({'status': 'success'})
+            else:
+                print(seril.errors)
+                return Response({'status': 'error'})
+        else:
+
+            return Response({'status': 'error'})
+
+        # return Response({'status':'success'})
+        # fs = FileSystemStorage()
+        # filearr={}
+        # # fl=folder_make(request.data['category'])
+        # # print(fl)
+        # count=1
+
+        # for f in request.FILES.getlist("file"):
+        #     filename = f.name
+        #     pt=settings.BASE_DIR
+        #     new_pt=f"{pt}\media\{filename}"
+        #     if not allowed_image(f.name):
+
+        #         return Response({'status':'error','noty':'file is not valid'})
+        #     if filename == "":
+        #         return Response({'status':'error','noty':'file name is empty'})
+        #     if not file_checker(new_pt):
+        #         return Response({'status':'error','noty':'Please provide a different filename'})
+
+        #     fs = FileSystemStorage()
+        #     # flsave=fs.save(filename, f)
+
+        #     filearr.update({str(count):filename})
+        #     count+=1
+
+
+@api_view(['POST', "GET", "PUT"])
+def soldprod(request):
+
+    if request.method == "POST":
+
+        user = request.user.id
+        em = request.user.email
+        usr = Uerdet.objects.get(userid=user)
+        # print(request.data['products'])
+
+        check = None
+        try:
+            check = Soldproduct.objects.get(
+                user_id=usr.id, delivery_status='Undelivered')
+            # print(check)
+        except:
+            pass
+        # print(check)
+        if check == None:
+            pro = request.data['products']
+            data = {
+                'deliverid': get_unique_id(length=15), 'total': request.data['total'], 'delivery_status': 'Undelivered', 'delivery_type': 'Delivery_pay', 'user_id': usr.id, 'odered_date': date.today()
+            }
+            seril = Soldnewserializer(data=data)
+            if seril.is_valid():
+                seril.save()
+                newproducts = prod_conv(pro, seril.data, 'fir', em)
+                return Response({'status': 'success'})
+            else:
+                print(seril.errors)
+                return Response({'status': 'error'})
+        else:
+            newprod = check
+            pd = request.data['products']
+            # print(pd)
+            # if pd in newprod:
+            #     print('hooo')
+            products = prod_conv(request.data['products'], newprod, 'sec', em)
+            newdata = {
+                'delivery_status': 'Undelivered'
+            }
+
+            # print(products)
+            seril = Soldserializer(check, data=newdata)
+            if seril.is_valid():
+                seril.save()
+                # return Response({'status':seril.data})
+                return Response({'status': 'success'})
+            else:
+                print(seril.errors)
+                return Response({'status': 'error'})
+            return Response({'status': 'already added'})
+    elif request.method == "GET":
+        seril = Soldproduct.objects.filter(delivery_status='Undelivered').all()
+        result = Soldserializer(seril, many=True)
+        return Response({'data': result.data})
+    elif request.method == "PUT":
+
+        for i in range(len(request.data)):
+            check = Soldproduct.objects.get(id=request.data[i]['id'])
+            usr = check.user_id.id
+            delv_prod(usr)
+            print(usr, 'hi')
+            check = Soldproduct.objects.get(id=request.data[i]['id'])
+            data = {
+                'delivery_status': request.data[i]['delivery_status']
+            }
+            seril = Soldnewserializer(check, data=data)
+            if seril.is_valid():
+                seril.save()
+
+            else:
+                print(seril.errors)
+                return Response({'status': 'error'})
+        return Response({'status': 'success'})
+
+
+@api_view(["GET"])
+@permission_classes([permissions.AllowAny, ])
+def filtsold(request):
+    del_type = request.META['HTTP_DELTYPE']
+    del_status = request.META["HTTP_DELSTATUS"]
+    city = request.META['HTTP_CITY']
+    dat = request.META["HTTP_DAT"]
+    data = None
+    print(del_type, del_status, city, dat)
+    if del_type != "Default" and del_status != "Default" and city != "Default" and dat != "Default":
+        data = Soldproduct.objects.filter(
+            delivery_type=del_type, delivery_status=del_status, odered_date=dat, user_id__city__contains=city)
+    elif del_type != "Default" and del_status != "Default" and city != "Default":
+        data = Soldproduct.objects.filter(
+            delivery_type=del_type, delivery_status=del_status, user_id__city__contains=city)
+    elif del_type != "Default" and del_status != "Default" and dat != "Default":
+        data = Soldproduct.objects.filter(
+            delivery_type=del_type, delivery_status=del_status, odered_date=dat)
+    elif del_type != "Default" and city != "Default" and dat != "Default":
+        data = Soldproduct.objects.filter(
+            delivery_type=del_type, odered_date=dat, user_id__city__contains=city)
+    elif del_status != "Default" and city != "Default" and dat != "Default":
+        data = Soldproduct.objects.filter(
+            delivery_status=del_status, odered_date=dat, user_id__city__contains=city)
+    elif del_type != "Default" and del_status != "Default":
+        data = Soldproduct.objects.filter(
+            delivery_type=del_type, delivery_status=del_status)
+    elif del_type != "Default" and city != "Default":
+        data = Soldproduct.objects.filter(
+            delivery_type=del_type, user_id__city__contains=city)
+    elif del_type != "Default" and dat != "Default":
+        data = Soldproduct.objects.filter(
+            delivery_type=del_type, odered_date=dat)
+    elif del_status != "Default" and city != "Default":
+        data = Soldproduct.objects.filter(
+            delivery_status=del_status, user_id__city__contains=city)
+    elif del_status != "Default" and dat != "Default":
+        data = Soldproduct.objects.filter(
+            delivery_status=del_status, odered_date=dat)
+    elif city != "Default" and dat != "Default":
+        data = Soldproduct.objects.filter(
+            odered_date=dat, user_id__city__contains=city)
+    elif del_type != "Default":
+        data = Soldproduct.objects.filter(delivery_type=del_type)
+    elif del_status != "Default":
+        data = Soldproduct.objects.filter(delivery_status=del_status)
+    elif city != "Default":
+        data = Soldproduct.objects.filter(user_id__city__contains=city)
+    elif dat != "Default":
+        data = Soldproduct.objects.filter(odered_date=dat)
+    else:
+        data = Soldproduct.objects.all()
+    result = Soldserializer(data, many=True)
+
+    return Response({'data': result.data})
+
+
+@api_view(['POST', "GET"])
+@permission_classes([permissions.AllowAny, ])
+def proddisc(request):
+    if request.method == "GET":
+        ids = request.META['HTTP_IDS']
+        seril = Product.objects.filter(id=ids)
+        result = Productserial(seril, many=True)
+        return Response({'data': result.data})
+
+
+@api_view(['POST', "GET", "PUT"])
+def addreview(request):
+    if request.method == "POST":
+        user = request.user.id
+        usr = Uerdet.objects.get(userid=user).id
+        data = {
+            'review': request.data['review'], 'review_reply': '', 'ratings': request.data['ratings'], 'user_id': usr, 'product_id': request.data['product_id']
+        }
+
+        check = None
+        try:
+            check = Reviews.objects.get(
+                product_id=request.data['product_id'], user_id=usr, review=request.data['review'])
+        except:
+            pass
+        print(data, check)
+        if check == None:
+            seril = Reviewserializer(data=data)
+            if seril.is_valid():
+                seril.save()
+                return Response({'status': 'sucess'})
+            else:
+                print(seril.errors)
+                return Response({'status': 'error'})
+        else:
+            return Response({'status': 'already added'})
+
+    if request.method == "GET":
+        ids = request.META['HTTP_IDS']
+        seril = Reviews.objects.filter(product_id=ids).all()
+        result = SendreviewSeril(seril, many=True)
+        return Response({'data': result.data})
+    if request.method == "PUT":
+        ids = request.META['HTTP_IDS']
+        check = None
+        try:
+            check = Reviews.objects.get(id=ids)
+        except:
+            pass
+        print(check)
+        if check != None:
+            seril = Reviewserializer(check, data=request.data)
+            if seril.is_valid():
+                seril.save()
+                return Response({'status': 'sucess'})
+            else:
+                print(seril.errors)
+                return Response({'status': 'error'})
+
+
+@api_view(["POST", "GET", 'DELETE', 'PUT'])
+def addtocart(request):
+    if request.method == "POST":
+        print(request.data)
+        user = request.user.id
+        usr = Uerdet.objects.get(userid=user)
+        print(request.data)
+        check = None
+        try:
+            check = Cart.objects.get(
+                user_id=usr.id, product_id=request.data['product_id'], status='Cart')
+        except:
+            pass
+        data = {
+            'quantity': request.data['quantity'], 'status': request.data['status'], 'size': request.data['size'], 'user_id': usr.id, 'product_id': request.data['product_id']
+        }
+        if check == None:
+            seril = Cartseril(data=data)
+            if seril.is_valid():
+                seril.save()
+                return Response({'status': 'alert', 'text': 'Product has been added to your cart Thank You!!'})
+            else:
+                print(seril.errors)
+                return Response({'status': 'error', 'text': 'Sorry could not add to the cart!!'})
+        else:
+            return Response({'status': 'error', 'text': 'Product is already in the cart'})
+    elif request.method == "GET":
+        status = request.META['HTTP_STATUS']
+        print(status)
+        seril = None
+        if status == 'admin':
+            id = request.META['HTTP_ID']
+            print(id)
+            seril = Cart.objects.filter(solid=id, status='Ondelivery').all()
+        else:
+
+            user = request.user.id
+            usr = Uerdet.objects.get(userid=user).id
+
+            if status == 'cart':
+                seril = Cart.objects.filter(user_id=usr, status='Cart').all()
+            elif status == 'delivery':
+                seril = Cart.objects.filter(Q(user_id=usr, status='Ondelivery') | Q(
+                    user_id=usr, status='Shipped') | Q(user_id=usr, status='Delivered')).all()
+            elif status == 'ship':
+                seril = Cart.objects.filter(user_id=usr).exclude(status='Sold').exclude(
+                    status='Delivery').exclude(status='Cart').all()
+
+        result = Cartgetseril(seril, many=True)
+        return Response({'data': result.data})
+    elif request.method == 'PUT':
+        header = 'Product Shipped'
+        disc = 'Your Product has been Shipped from the warehouse. You can track your order on our website.Thank you for shooping'
+        em = None
+        stat = request.META['HTTP_ID']
+        if stat == "Ship":
+            search = request.META['HTTP_SEARCH']
+            filter = request.META['HTTP_FILTER']
+            username = request.META['HTTP_USERNAME']
+
+            check = Cart.objects.filter(solid=search).all()
+            for i in range(len(check)):
+                data = {
+                    'status': filter
+                }
+
+                seril = Cartseril(check[i], data=data)
+                if seril.is_valid():
+                    seril.save()
+
+                    #
+
+                else:
+                    print(seril.errors)
+            if filter == 'Shipped':
+                email_sender(username, header, disc)
+        else:
+            for i in range(len(request.data)):
+                check = Cart.objects.get(id=request.data[i]['id'])
+                print('houi', check)
+                data = None
+                if stat == 'Delivery':
+                    data = {
+                        'quantity': request.data[i]['quantity'], 'status': 'Delivery',
+                    }
+                else:
+                    data = {
+                        'quantity': request.data[i]['quantity'], 'status': request.data[i]['status'],
+                    }
+
+                seril = Cartseril(check, data=data)
+                if seril.is_valid():
+                    seril.save()
+
+                else:
+                    print(seril.errors)
+                    return Response({'status': 'error'})
+        return Response({'status': 'success'})
+
+    elif request.method == 'DELETE':
+        print(request.META['HTTP_ID'])
+        check = Cart.objects.get(id=request.META['HTTP_ID'])
+        print(request.META['HTTP_ID'])
+        check.delete()
+        return Response({'status': 'success'})
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny, ])
+def usercart(request):
+
+    usr = request.META['HTTP_ID']
+    seril = Cart.objects.filter(user_id=usr, status='Delivery').all()
+
+    result = Cartgetseril(seril, many=True)
+    return Response({'data': result.data})
