@@ -922,3 +922,751 @@ def usercart(request):
 
     result = Cartgetseril(seril, many=True)
     return Response({'data': result.data})
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny, ])
+def getuserfiltproduct(request):
+    brand = request.META['HTTP_BRAND']
+    size = request.META['HTTP_SIZE']
+    price = request.META['HTTP_PRICE']
+    category = request.META['HTTP_CATEGORY']
+    subcategory = request.META['HTTP_SUBCATEGORY']
+    search = request.META['HTTP_SEARCH']
+    print(search)
+    # print(brand,discount,price,category)
+    # all_prod=Product.objects.filter(price__range=(1000,2000))
+
+    all_prod = None
+    if price != 'Default' and category != 'Default' and brand != 'Default' and size != 'Default' and subcategory != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            all_prod = Product.objects.filter(
+                price__gte=newpt, category=category, brand=brand, size=size, subcategory=subcategory)
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, category=category, brand=brand, size=size, subcategory=subcategory)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), category=category, brand=brand, size=size, subcategory=subcategory)
+    elif price != 'Default' and search != 'Default' and brand != 'Default' and size != 'Default' and subcategory != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            all_prod = Product.objects.filter(
+                price__gte=newpt, name__contains=search, brand=brand, size=size, subcategory=subcategory)
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, name__contains=search, brand=brand, size=size, subcategory=subcategory)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), name__contains=search, brand=brand, size=size, subcategory=subcategory)
+
+    elif price != 'Default' and category != 'Default' and brand != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+
+            all_prod = Product.objects.filter(
+                price__gte=newpt, category=category, brand=brand)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, category=category, brand=brand)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), category=category, brand=brand)
+
+    elif price != 'Default' and search != 'Default' and brand != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+
+            all_prod = Product.objects.filter(
+                price__gte=newpt, name__contains=search, brand=brand)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, name__contains=search, brand=brand)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), name__contains=search, brand=brand)
+
+    elif price != 'Default' and search != 'Default' and brand != 'Default' and subcategory != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+
+            all_prod = Product.objects.filter(
+                price__gte=newpt, name__contains=search, brand=brand, subcategory=subcategory)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, name__contains=search, brand=brand, subcategory=subcategory)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), name__contains=search, brand=brand, subcategory=subcategory)
+
+    elif price != 'Default' and search != 'Default' and size != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            all_prod = Product.objects.filter(
+                price__gte=newpt, name__contains=search, size=size, subcategory=subcategory)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, name__contains=search, size=size, subcategory=subcategory)
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), name__contains=search, size=size, subcategory=subcategory)
+    elif price != 'Default' and search != 'Default' and size != 'Default' and subcategory != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            all_prod = Product.objects.filter(
+                price__gte=newpt, name__contains=search, size=size, subcategory=subcategory)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, name__contains=search, size=size, subcategory=subcategory)
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), name__contains=search, size=size, subcategory=subcategory)
+
+    elif price != 'Default' and brand != 'Default' and size != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            all_prod = Product.objects.filter(
+                price__gte=newpt, brand=brand, size=size)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, brand=brand, size=size)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(
+                price__range=(small, big), brand=brand, size=size)
+    elif price != 'Default' and brand != 'Default' and size != 'Default' and subcategory != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            all_prod = Product.objects.filter(
+                price__gte=newpt, brand=brand, size=size, subcategory=subcategory)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, brand=brand, size=size, subcategory=subcategory)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), brand=brand, size=size, subcategory=subcategory)
+
+    elif search != 'Default' and brand != 'Default' and size != 'Default':
+        all_prod = Product.objects.filter(
+            name__contains=search, brand=brand, size=size)
+    elif search != 'Default' and brand != 'Default' and size != 'Default' and subcategory != 'Default':
+        all_prod = Product.objects.filter(
+            name__contains=search, brand=brand, size=size, subcategory=subcategory)
+    elif price != 'Default' and search != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+
+            all_prod = Product.objects.filter(
+                price__gte=newpt, name__contains=search)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, name__contains=search)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(
+                price__range=(small, big), name__contains=search)
+    elif price != 'Default' and search != 'Default' and subcategory != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+
+            all_prod = Product.objects.filter(
+                price__gte=newpt, name__contains=search, subcategory=subcategory)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, name__contains=search, subcategory=subcategory)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), name__contains=search, subcategory=subcategory)
+    elif price != 'Default' and brand != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+
+            all_prod = Product.objects.filter(price__gte=newpt, brand=brand)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(price__lte=newpt, brand=brand)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(
+                price__range=(small, big), brand=brand)
+    elif price != 'Default' and size != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            all_prod = Product.objects.filter(price__gte=newpt, size=size)
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(price__lte=newpt, size=size)
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(
+                price__range=(small, big), size=size)
+    elif price != 'Default' and brand != 'Default' and subcategory != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+
+            all_prod = Product.objects.filter(
+                price__gte=newpt, brand=brand, subcategory=subcategory)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, brand=brand, subcategory=subcategory)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), brand=brand, subcategory=subcategory)
+    elif price != 'Default' and size != 'Default' and subcategory != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            all_prod = Product.objects.filter(
+                price__gte=newpt, size=size, subcategory=subcategory)
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, size=size, subcategory=subcategory)
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), size=size, subcategory=subcategory)
+
+    elif price != 'Default' and subcategory != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            all_prod = Product.objects.filter(
+                price__gte=newpt, subcategory=subcategory)
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, subcategory=subcategory)
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(
+                price__range=(small, big), subcategory=subcategory)
+
+    elif brand != 'Default' and size != 'Default' and subcategory != 'Default':
+        all_prod = Product.objects.filter(
+            brand=brand, size=size, subcategory=subcategory)
+    elif search != 'Default' and size != 'Default' and subcategory != 'Default':
+        all_prod = Product.objects.filter(
+            name__contains=search, size=size, subcategory=subcategory)
+    elif search != 'Default' and brand != 'Default' and subcategory != 'Default':
+        all_prod = Product.objects.filter(
+            name__contains=search, brand=brand, subcategory=subcategory)
+    elif brand != 'Default' and size != 'Default':
+        all_prod = Product.objects.filter(brand=brand, size=size)
+    elif search != 'Default' and size != 'Default':
+        all_prod = Product.objects.filter(name__contains=search, size=size)
+    elif search != 'Default' and brand != 'Default':
+        all_prod = Product.objects.filter(name__contains=search, brand=brand)
+
+    elif brand != 'Default' and subcategory != 'Default':
+        all_prod = Product.objects.filter(brand=brand, subcategory=subcategory)
+    elif subcategory != 'Default' and size != 'Default':
+        all_prod = Product.objects.filter(subcategory=subcategory, size=size)
+    elif search != 'Default' and subcategory != 'Default':
+        all_prod = Product.objects.filter(
+            name__contains=search, subcategory=subcategory)
+    elif price != 'Default' and category != 'Default' and brand != 'Default' and subcategory != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+
+            all_prod = Product.objects.filter(
+                price__gte=newpt, category=category, brand=brand, subcategory=subcategory)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, category=category, brand=brand, subcategory=subcategory)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), category=category, brand=brand, subcategory=subcategory)
+
+    elif price != 'Default' and category != 'Default' and size != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            all_prod = Product.objects.filter(
+                price__gte=newpt, category=category, size=size, subcategory=subcategory)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, category=category, size=size, subcategory=subcategory)
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), category=category, size=size, subcategory=subcategory)
+    elif price != 'Default' and category != 'Default' and size != 'Default' and subcategory != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            all_prod = Product.objects.filter(
+                price__gte=newpt, category=category, size=size, subcategory=subcategory)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, category=category, size=size, subcategory=subcategory)
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), category=category, size=size, subcategory=subcategory)
+
+    elif price != 'Default' and brand != 'Default' and size != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            all_prod = Product.objects.filter(
+                price__gte=newpt, brand=brand, size=size)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, brand=brand, size=size)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(
+                price__range=(small, big), brand=brand, size=size)
+    elif price != 'Default' and brand != 'Default' and size != 'Default' and subcategory != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            all_prod = Product.objects.filter(
+                price__gte=newpt, brand=brand, size=size, subcategory=subcategory)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, brand=brand, size=size, subcategory=subcategory)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), brand=brand, size=size, subcategory=subcategory)
+
+    elif category != 'Default' and brand != 'Default' and size != 'Default':
+        all_prod = Product.objects.filter(
+            category=category, brand=brand, size=size)
+    elif category != 'Default' and brand != 'Default' and size != 'Default' and subcategory != 'Default':
+        all_prod = Product.objects.filter(
+            category=category, brand=brand, size=size, subcategory=subcategory)
+    elif price != 'Default' and category != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+
+            all_prod = Product.objects.filter(
+                price__gte=newpt, category=category)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, category=category)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(
+                price__range=(small, big), category=category)
+    elif price != 'Default' and category != 'Default' and subcategory != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+
+            all_prod = Product.objects.filter(
+                price__gte=newpt, category=category, subcategory=subcategory)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, category=category, subcategory=subcategory)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), category=category, subcategory=subcategory)
+    elif price != 'Default' and brand != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+
+            all_prod = Product.objects.filter(price__gte=newpt, brand=brand)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(price__lte=newpt, brand=brand)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(
+                price__range=(small, big), brand=brand)
+    elif price != 'Default' and size != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            all_prod = Product.objects.filter(price__gte=newpt, size=size)
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(price__lte=newpt, size=size)
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(
+                price__range=(small, big), size=size)
+    elif price != 'Default' and brand != 'Default' and subcategory != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+
+            all_prod = Product.objects.filter(
+                price__gte=newpt, brand=brand, subcategory=subcategory)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, brand=brand, subcategory=subcategory)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), brand=brand, subcategory=subcategory)
+    elif price != 'Default' and size != 'Default' and subcategory != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            all_prod = Product.objects.filter(
+                price__gte=newpt, size=size, subcategory=subcategory)
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, size=size, subcategory=subcategory)
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(
+                small, big), size=size, subcategory=subcategory)
+
+    elif price != 'Default' and subcategory != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+            all_prod = Product.objects.filter(
+                price__gte=newpt, subcategory=subcategory)
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(
+                price__lte=newpt, subcategory=subcategory)
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(
+                price__range=(small, big), subcategory=subcategory)
+
+    elif brand != 'Default' and size != 'Default' and subcategory != 'Default':
+        all_prod = Product.objects.filter(
+            brand=brand, size=size, subcategory=subcategory)
+    elif category != 'Default' and size != 'Default' and subcategory != 'Default':
+        all_prod = Product.objects.filter(
+            category=category, size=size, subcategory=subcategory)
+    elif category != 'Default' and brand != 'Default' and subcategory != 'Default':
+        all_prod = Product.objects.filter(
+            category=category, brand=brand, subcategory=subcategory)
+    elif brand != 'Default' and size != 'Default':
+        all_prod = Product.objects.filter(brand=brand, size=size)
+    elif category != 'Default' and size != 'Default':
+        all_prod = Product.objects.filter(category=category, size=size)
+    elif category != 'Default' and brand != 'Default':
+        all_prod = Product.objects.filter(category=category, brand=brand)
+
+    elif brand != 'Default' and subcategory != 'Default':
+        all_prod = Product.objects.filter(brand=brand, subcategory=subcategory)
+    elif subcategory != 'Default' and size != 'Default':
+        all_prod = Product.objects.filter(subcategory=subcategory, size=size)
+    elif category != 'Default' and subcategory != 'Default':
+        all_prod = Product.objects.filter(
+            category=category, subcategory=subcategory)
+
+    elif category != 'Default':
+        all_prod = Product.objects.filter(category=category)
+    elif brand != 'Default':
+        all_prod = Product.objects.filter(brand=brand)
+    elif size != 'Default':
+        all_prod = Product.objects.filter(size=size)
+    elif subcategory != 'Default':
+        all_prod = Product.objects.filter(subcategory=subcategory)
+    elif search != 'Default':
+
+        all_prod = Product.objects.filter(name__contains=search).all()
+
+    elif price != 'Default':
+        if ">" in price:
+            newprice = price.split(">")
+            newpt = int(newprice[1])
+            print(newpt)
+            print(category)
+
+            all_prod = Product.objects.filter(price__gte=newpt)
+
+        elif "<" in price:
+            newprice = price.split("<")
+            newpt = int(newprice[1])
+            all_prod = Product.objects.filter(price__lte=newpt)
+
+        elif "-" in price:
+            newprice = price.split("-", 2)
+            small = int(newprice[0])
+            big = int(newprice[1])
+            print(big)
+            all_prod = Product.objects.filter(price__range=(small, big))
+    else:
+        all_prod = Product.objects.all()
+
+    result = Productserial(all_prod, many=True)
+    return Response({'status': 'done', 'data': result.data})
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny, ])
+def showrev(request):
+    if request.method == "GET":
+        ids = request.META['HTTP_IDS']
+        seril = Reviews.objects.filter(product_id=ids).all()
+        result = SendreviewSeril(seril, many=True)
+        avg = ratavg(seril)
+
+        return Response({'data': result.data, 'avg': avg})
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny, ])
+def searchdat(request):
+
+    all_prod = Product.objects.filter(name__contains='mo').all()
+    result = Productserial(all_prod, many=True)
+    return Response({'status': 'done', 'data': 'sucess'})
