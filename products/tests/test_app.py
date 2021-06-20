@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 from products.files import allowed_image
-
+from fixtures import time_tracker
 #Unit Test
 
 
@@ -183,8 +183,10 @@ def test_delet_admin(api_client)->None:
         assert response.status_code == 200
         assert new_response_content.get('status') == 'success'
 
+
+
 ##function testing
 @pytest.mark.parametrize('name,expected',[('pic.png',True),('pic.mp4',False),('noextension',False)])
-def test_image_extension(name:str, expected:bool):
+def test_image_extension(time_tracker,name:str, expected:bool):
         res = allowed_image(name)
         assert res == expected
